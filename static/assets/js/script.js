@@ -21,40 +21,46 @@ Version      : 1.0
 	
 	function init() {
 		var $this = Sidemenu;
+		
+		// Handle submenu toggles
 		$('#sidebar-menu a').on('click', function(e) {
 			if($(this).parent().hasClass('submenu')) {
 				e.preventDefault();
-			}
-			if(!$(this).hasClass('subdrop')) {
-				$('ul', $(this).parents('ul:first')).slideUp(350);
-				$('a', $(this).parents('ul:first')).removeClass('subdrop');
-				$(this).next('ul').slideDown(350);
-				$(this).addClass('subdrop');
-			} else if($(this).hasClass('subdrop')) {
-				$(this).removeClass('subdrop');
-				$(this).next('ul').slideUp(350);
+				if(!$(this).hasClass('subdrop')) {
+					$('.sidebar-menu ul ul').slideUp(350);
+					$('.sidebar-menu a').removeClass('subdrop');
+					$(this).next('ul').slideDown(350);
+					$(this).addClass('subdrop');
+				} else if($(this).hasClass('subdrop')) {
+					$(this).removeClass('subdrop');
+					$(this).next('ul').slideUp(350);
+				}
 			}
 		});
+
+		// Handle active menu items
 		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
 	}
 	
-	// Sidebar Initiate
+	// Initialize sidebar
 	init();
 	
 	// Mobile menu sidebar overlay
-	
 	$('body').append('<div class="sidebar-overlay"></div>');
-	$(document).on('click', '#mobile_btn', function() {
-		$wrapper.toggleClass('slide-nav');
+	
+	// Mobile menu toggle
+	$(document).on('click', '#mobile_btn', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('.sidebar').toggleClass('opened');
 		$('.sidebar-overlay').toggleClass('opened');
-		$('html').addClass('menu-opened');
+		$('html').toggleClass('menu-opened');
 		return false;
 	});
 	
-	// Sidebar overlay
-	
+	// Sidebar overlay click
 	$(".sidebar-overlay").on("click", function () {
-		$wrapper.removeClass('slide-nav');
+		$('.sidebar').removeClass('opened');
 		$(".sidebar-overlay").removeClass("opened");
 		$('html').removeClass('menu-opened');
 	});
@@ -176,8 +182,7 @@ Version      : 1.0
 		});
 	}
 	
-	// Small Sidebar
-
+	// Toggle sidebar
 	$(document).on('click', '#toggle_btn', function() {
 		if($('body').hasClass('mini-sidebar')) {
 			$('body').removeClass('mini-sidebar');
@@ -186,12 +191,10 @@ Version      : 1.0
 			$('body').addClass('mini-sidebar');
 			$('.subdrop + ul').slideUp();
 		}
-		setTimeout(function(){ 
-			mA.redraw();
-			mL.redraw();
-		}, 300);
 		return false;
 	});
+
+	// Handle mini sidebar hover
 	$(document).on('mouseover', function(e) {
 		e.stopPropagation();
 		if($('body').hasClass('mini-sidebar') && $('#toggle_btn').is(':visible')) {
@@ -207,6 +210,31 @@ Version      : 1.0
 		}
 	});
 
+	// Auto-expand submenu on hover for desktop
+	if($(window).width() >= 992) {
+		$('.sidebar-menu > ul > li').hover(
+			function() {
+				$(this).find('> a.subdrop + ul').slideDown(350);
+				$(this).find('> a.subdrop').addClass('subdrop');
+			},
+			function() {
+				if(!$(this).find('> a').hasClass('active')) {
+					$(this).find('> a.subdrop + ul').slideUp(350);
+					$(this).find('> a.subdrop').removeClass('subdrop');
+				}
+			}
+		);
+	}
+
+	// Close sidebar on window resize if mobile
+	$(window).on('resize', function() {
+		if($(window).width() < 992) {
+			$('.sidebar').removeClass('opened');
+			$('.sidebar-overlay').removeClass('opened');
+			$('html').removeClass('menu-opened');
+		}
+	});
+	
 	// Circle Progress Bar
 	function animateElements() {
 		$('.circle-bar1').each(function () {
