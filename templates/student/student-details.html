@@ -1,0 +1,160 @@
+{% extends 'Home/base.html' %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Student Details</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+                        <li class="breadcrumb-item active">Student Details</li>
+                    </ul>
+                </div>
+                <div class="col-auto text-right float-right ml-auto">
+                    <a href="{% url 'edit_student' student.slug %}" class="btn btn-primary">
+                        <i class="fas fa-pencil"></i> Edit Student
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="profile-view">
+                                    <div class="profile-img-wrap">
+                                        <div class="profile-img">
+                                            {% if student.student_image %}
+                                            <img src="{{ student.student_image.url }}" alt="Student Image">
+                                            {% else %}
+                                            <img src="{% static 'img/default-user.png' %}" alt="Default Image">
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="profile-basic">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="profile-info-left">
+                                                    <h3 class="user-name m-t-0 mb-0">{{ student.first_name }} {{ student.last_name }}</h3>
+                                                    <h6 class="text-muted">Student ID: {{ student.Student_ID }}</h6>
+                                                    <div class="staff-id">Admission Number : {{ student.admission_number }}</div>
+                                                    <div class="staff-msg"><a href="mailto:{{ student.email }}" class="btn btn-primary">Send Email</a></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <ul class="personal-info">
+                                                    <li>
+                                                        <span class="title">Phone:</span>
+                                                        <span class="text"><a href="tel:{{ student.phone_number }}">{{ student.phone_number }}</a></span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Email:</span>
+                                                        <span class="text"><a href="mailto:{{ student.email }}">{{ student.email }}</a></span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Gender:</span>
+                                                        <span class="text">{{ student.gender }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Date of Birth:</span>
+                                                        <span class="text">{{ student.date_of_birth }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Religion:</span>
+                                                        <span class="text">{{ student.religion|default:"Not specified" }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Joining Date:</span>
+                                                        <span class="text">{{ student.joining_date }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Section:</span>
+                                                        <span class="text">{{ student.section|default:"Not specified" }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="title">Address:</span>
+                                                        <span class="text">{{ student.address }}</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Parent Information</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Father's Information</h4>
+                                <ul class="personal-info">
+                                    <li>
+                                        <span class="title">Name:</span>
+                                        <span class="text">{{ student.parent.father_name }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Occupation:</span>
+                                        <span class="text">{{ student.parent.father_occupation }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Phone:</span>
+                                        <span class="text"><a href="tel:{{ student.parent.father_mobile }}">{{ student.parent.father_mobile }}</a></span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Email:</span>
+                                        <span class="text"><a href="mailto:{{ student.parent.father_email }}">{{ student.parent.father_email }}</a></span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Mother's Information</h4>
+                                <ul class="personal-info">
+                                    <li>
+                                        <span class="title">Name:</span>
+                                        <span class="text">{{ student.parent.mother_name }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Occupation:</span>
+                                        <span class="text">{{ student.parent.mother_occupation }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Phone:</span>
+                                        <span class="text"><a href="tel:{{ student.parent.mother_mobile }}">{{ student.parent.mother_mobile }}</a></span>
+                                    </li>
+                                    <li>
+                                        <span class="title">Email:</span>
+                                        <span class="text"><a href="mailto:{{ student.parent.mother_email }}">{{ student.parent.mother_email }}</a></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Present Address</h4>
+                                <p>{{ student.parent.present_address }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Permanent Address</h4>
+                                <p>{{ student.parent.permanent_address }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

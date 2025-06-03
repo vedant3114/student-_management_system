@@ -105,9 +105,9 @@
                      <li class="submenu active">
                         <a href="#"><i class="fas fa-user-graduate"></i> <span> Dashboard</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="index.html" class="active">Admin Dashboard</a></li>
-                           <li><a href="teacher-dashboard.html">Teacher Dashboard</a></li>
-                           <li><a href="student-dashboard.html">Student Dashboard</a></li>
+                           <li><a href="{% url 'admin_dashboard' %}" class="active">Admin Dashboard</a></li>
+                           <li><a href="{% url 'teacher_dashboard' %}">Teacher Dashboard</a></li>
+                           <li><a href="{% url 'student_dashboard' %}">Student Dashboard</a></li>
                         </ul>
                      </li>
                      <li class="submenu">
@@ -275,7 +275,7 @@
               if (notiDropdown) {
                   // Add a click event listener to the notification dropdown
                   notiDropdown.addEventListener('click', function() {
-                      const url = "{% url 'mark_notifications_as_read' %}";
+                      const url = "{% url 'mark_notification_as_read' %}";
       
                       // Use the Fetch API to send a POST request to mark notifications as read
                       fetch(url, {
