@@ -77,6 +77,12 @@ def student_list(request):
     students = Student.objects.all().order_by('-joining_date')
     return render(request, 'student/student_list.html', {'students': students})
 
+def view_student(request ,slug):
+    student = get_object_or_404(Student,student_id = slug)
+    context={
+        'student' : student
+    }
+    return render(request, 'student/student-details.html')
 
 def edit_student(request, slug):
     student = get_object_or_404(Student, slug=slug)
