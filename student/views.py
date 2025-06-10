@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def add_student(request):
@@ -84,48 +85,63 @@ def view_student(request ,slug):
     }
     return render(request, 'student/student-details.html')
 
+@login_required
 def edit_student(request, slug):
     student = get_object_or_404(Student, slug=slug)
+    parent = student.parent
+    
     if request.method == 'POST':
-        # Update student information
-        student.first_name = request.POST.get('first_name')
-        student.last_name = request.POST.get('last_name')
-        student.Student_ID = request.POST.get('student_id')
-        student.gender = request.POST.get('gender')
-        student.date_of_birth = request.POST.get('date_of_birth')
-        student.religion = request.POST.get('religion')
-        student.joining_date = request.POST.get('joining_date')
-        student.phone_number = request.POST.get('mobile_number')
-        student.admission_number = request.POST.get('admission_number')
-        student.section = request.POST.get('section')
-        student.email = request.POST.get('email')
-        student.address = request.POST.get('address')
-        
-        if 'student_image' in request.FILES:
-            student.student_image = request.FILES['student_image']
-
-        # Update parent information
-        parent = student.parent
-        parent.father_name = request.POST.get('father_name')
-        parent.father_occupation = request.POST.get('father_occupation')
-        parent.father_mobile = request.POST.get('father_mobile')
-        parent.father_email = request.POST.get('father_email')
-        parent.mother_name = request.POST.get('mother_name')
-        parent.mother_occupation = request.POST.get('mother_occupation')
-        parent.mother_mobile = request.POST.get('mother_mobile')
-        parent.mother_email = request.POST.get('mother_email')
-        parent.present_address = request.POST.get('present_address')
-        parent.permanent_address = request.POST.get('permanent_address')
-
         try:
+            # Update student information
+            student.first_name = request.POST.get('first_name')
+            student.last_name = request.POST.get('last_name')
+            student.Student_ID = request.POST.get('student_id')
+            student.gender = request.POST.get('gender')
+            student.date_of_birth = request.POST.get('date_of_birth')
+            student.religion = request.POST.get('religion')
+            student.joining_date = request.POST.get('joining_date')
+            student.phone_number = request.POST.get('mobile_number')
+            student.admission_number = request.POST.get('admission_number')
+            student.section = request.POST.get('section')
+            student.email = request.POST.get('email')
+            student.address = request.POST.get('address')
+            
+            if 'student_image' in request.FILES:
+                student.student_image = request.FILES['student_image']
+
+            # Update parent information
+            parent.father_name = request.POST.get('father_name')
+            parent.father_occupation = request.POST.get('father_occupation')
+            parent.father_mobile = request.POST.get('father_mobile')
+            parent.father_email = request.POST.get('father_email')
+            parent.mother_name = request.POST.get('mother_name')
+            parent.mother_occupation = request.POST.get('mother_occupation')
+            parent.mother_mobile = request.POST.get('mother_mobile')
+            parent.mother_email = request.POST.get('mother_email')
+            parent.present_address = request.POST.get('present_address')
+            parent.permanent_address = request.POST.get('permanent_address')
+
+            # Save both models
             parent.save()
             student.save()
+            
             messages.success(request, 'Student information updated successfully!')
             return redirect('student_list')
+            
         except Exception as e:
             messages.error(request, f'Error updating student: {str(e)}')
+            return render(request, 'students/edit-student.html', {
+                'student': student,
+                'parent': parent,
+                'error': str(e)
+            })
     
-    return render(request, 'student/edit_student.html', {'student': student})
+    # GET request - show the form with current data
+    context = {
+        'student': student,
+        'parent': parent
+    }
+    return render(request, 'students/edit-student.html', context)
 
 def delete_student(request, slug):
     if request.method == 'POST':

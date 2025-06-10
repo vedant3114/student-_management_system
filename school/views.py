@@ -186,7 +186,7 @@ def edit_student(request, slug):
         except Exception as e:
             messages.error(request, f'Error updating student: {str(e)}')
     
-    return render(request, 'student/edit_student.html', {'student': student})
+    return render(request, 'students/edit-student.html', {'student': student})
 
 @login_required
 def delete_student(request, slug):
