@@ -101,6 +101,18 @@
                                         <small>Current Image: {{ student.student_image.url }}</small>
                                     </div>
                                 </div>
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" name="email" class="form-control" value="{{ student.email }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        <textarea name="address" class="form-control" rows="2" required>{{ student.address }}</textarea>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <h5 class="form-title"><span>Parent Information</span></h5>
                                 </div>

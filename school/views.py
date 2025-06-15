@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Notification
+from .models import Notification, Department, Teacher
 from student.models import Student, Parent
 from django.utils.text import slugify
 from django.http import HttpResponseRedirect
@@ -224,3 +224,178 @@ def clear_all_notification(request):
 
 def clear_all_notifications(request):
     return HttpResponse('All notifications cleared (placeholder).')
+
+@login_required
+def add_department(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        if not name:
+            messages.error(request, 'Department name is required.')
+            return render(request, 'department/add_department.html', {})
+        
+        try:
+            Department.objects.create(name=name, description=description)
+            messages.success(request, 'Department added successfully!')
+            return redirect('department_list')
+        except Exception as e:
+            messages.error(request, f'Error adding department: {str(e)}')
+            return render(request, 'department/add_department.html', {})
+    return render(request, 'department/add_department.html', {})
+
+@login_required
+def department_list(request):
+    departments = Department.objects.all().order_by('name')
+    return render(request, 'department/department_list.html', {'departments': departments})
+
+@login_required
+def edit_department(request, slug):
+    department = get_object_or_404(Department, slug=slug)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+
+        if not name:
+            messages.error(request, 'Department name is required.')
+            return render(request, 'department/edit_department.html', {'department': department})
+
+        try:
+            department.name = name
+            department.description = description
+            # Regenerate slug if name changes
+            if department.slug != slugify(name):
+                department.slug = slugify(name)
+            department.save()
+            messages.success(request, 'Department updated successfully!')
+            return redirect('department_list')
+        except Exception as e:
+            messages.error(request, f'Error updating department: {str(e)}')
+            return render(request, 'department/edit_department.html', {'department': department})
+    return render(request, 'department/edit_department.html', {'department': department})
+
+@login_required
+def delete_department(request, slug):
+    if request.method == 'POST':
+        department = get_object_or_404(Department, slug=slug)
+        try:
+            department.delete()
+            messages.success(request, 'Department deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting department: {str(e)}')
+    return redirect('department_list')
+
+@login_required
+def add_teacher(request):
+    departments = Department.objects.all()
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        gender = request.POST.get('gender')
+        teacher_id = request.POST.get('teacher_id')
+        email = request.POST.get('email')
+        date_of_birth = request.POST.get('date_of_birth')
+        address = request.POST.get('address')
+        phone_number = request.POST.get('phone_number')
+        joining_date = request.POST.get('joining_date')
+        department_slug = request.POST.get('department')
+        profile_picture = request.FILES.get('profile_picture')
+
+        if not all([first_name, last_name, gender, teacher_id, email, joining_date]):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'teacher/add_teacher.html', {'departments': departments})
+        
+        try:
+            department = None
+            if department_slug:
+                department = get_object_or_404(Department, slug=department_slug)
+
+            Teacher.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                gender=gender,
+                teacher_id=teacher_id,
+                email=email,
+                date_of_birth=date_of_birth,
+                address=address,
+                phone_number=phone_number,
+                joining_date=joining_date,
+                profile_picture=profile_picture,
+                department=department
+            )
+            messages.success(request, 'Teacher added successfully!')
+            return redirect('teacher_list')
+        except Exception as e:
+            messages.error(request, f'Error adding teacher: {str(e)}')
+            return render(request, 'teacher/add_teacher.html', {'departments': departments})
+
+    return render(request, 'teacher/add_teacher.html', {'departments': departments})
+
+@login_required
+def teacher_list(request):
+    teachers = Teacher.objects.all().order_by('first_name')
+    return render(request, 'teacher/teacher_list.html', {'teachers': teachers})
+
+@login_required
+def edit_teacher(request, slug):
+    teacher = get_object_or_404(Teacher, slug=slug)
+    departments = Department.objects.all()
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        gender = request.POST.get('gender')
+        teacher_id = request.POST.get('teacher_id')
+        email = request.POST.get('email')
+        date_of_birth = request.POST.get('date_of_birth')
+        address = request.POST.get('address')
+        phone_number = request.POST.get('phone_number')
+        joining_date = request.POST.get('joining_date')
+        department_slug = request.POST.get('department')
+        profile_picture = request.FILES.get('profile_picture')
+
+        if not all([first_name, last_name, gender, teacher_id, email, joining_date]):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'teacher/edit_teacher.html', {'teacher': teacher, 'departments': departments})
+
+        try:
+            department = None
+            if department_slug:
+                department = get_object_or_404(Department, slug=department_slug)
+            
+            teacher.first_name = first_name
+            teacher.last_name = last_name
+            teacher.gender = gender
+            teacher.teacher_id = teacher_id
+            teacher.email = email
+            teacher.date_of_birth = date_of_birth
+            teacher.address = address
+            teacher.phone_number = phone_number
+            teacher.joining_date = joining_date
+            teacher.department = department
+            if profile_picture:
+                teacher.profile_picture = profile_picture
+            
+            # Regenerate slug if name or ID changes
+            new_slug_base = f"{first_name}-{last_name}-{teacher_id}"
+            if teacher.slug != slugify(new_slug_base):
+                teacher.slug = slugify(new_slug_base)
+
+            teacher.save()
+            messages.success(request, 'Teacher updated successfully!')
+            return redirect('teacher_list')
+        except Exception as e:
+            messages.error(request, f'Error updating teacher: {str(e)}')
+            return render(request, 'teacher/edit_teacher.html', {'teacher': teacher, 'departments': departments})
+    
+    return render(request, 'teacher/edit_teacher.html', {'teacher': teacher, 'departments': departments})
+
+@login_required
+def delete_teacher(request, slug):
+    if request.method == 'POST':
+        teacher = get_object_or_404(Teacher, slug=slug)
+        try:
+            teacher.delete()
+            messages.success(request, 'Teacher deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting teacher: {str(e)}')
+    return redirect('teacher_list')

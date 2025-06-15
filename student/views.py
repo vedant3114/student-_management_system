@@ -103,8 +103,18 @@ def edit_student(request, slug):
             student.phone_number = request.POST.get('mobile_number')
             student.admission_number = request.POST.get('admission_number')
             student.section = request.POST.get('section')
-            student.email = request.POST.get('email')
-            student.address = request.POST.get('address')
+            
+            email = request.POST.get('email')
+            if not email:
+                messages.error(request, 'Email is required.')
+                return render(request, 'students/edit-student.html', {'student': student, 'parent': parent})
+            student.email = email
+
+            address = request.POST.get('address')
+            if not address:
+                messages.error(request, 'Address is required.')
+                return render(request, 'students/edit-student.html', {'student': student, 'parent': parent})
+            student.address = address
             
             if 'student_image' in request.FILES:
                 student.student_image = request.FILES['student_image']
