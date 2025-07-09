@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Notification, Department, Teacher
+from .models import Notification, Department, Teacher, Subject
 from student.models import Student, Parent
 from django.utils.text import slugify
 from django.http import HttpResponseRedirect
@@ -399,3 +399,66 @@ def delete_teacher(request, slug):
         except Exception as e:
             messages.error(request, f'Error deleting teacher: {str(e)}')
     return redirect('teacher_list')
+
+@login_required
+def subject_list(request):
+    subjects = Subject.objects.all().order_by('name')
+    return render(request, 'subject/subject_list.html', {'subjects': subjects})
+
+@login_required
+def add_subject(request):
+    departments = Department.objects.all()
+    teachers = Teacher.objects.all()
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        code = request.POST.get('code')
+        description = request.POST.get('description')
+        department_id = request.POST.get('department')
+        teacher_id = request.POST.get('teacher')
+        department = Department.objects.filter(id=department_id).first() if department_id else None
+        teacher = Teacher.objects.filter(id=teacher_id).first() if teacher_id else None
+        try:
+            Subject.objects.create(
+                name=name,
+                code=code,
+                description=description,
+                department=department,
+                teacher=teacher
+            )
+            messages.success(request, 'Subject added successfully!')
+            return redirect('subject_list')
+        except Exception as e:
+            messages.error(request, f'Error adding subject: {str(e)}')
+    return render(request, 'subject/add_subject.html', {'departments': departments, 'teachers': teachers})
+
+@login_required
+def edit_subject(request, slug):
+    subject = get_object_or_404(Subject, slug=slug)
+    departments = Department.objects.all()
+    teachers = Teacher.objects.all()
+    if request.method == 'POST':
+        subject.name = request.POST.get('name')
+        subject.code = request.POST.get('code')
+        subject.description = request.POST.get('description')
+        department_id = request.POST.get('department')
+        teacher_id = request.POST.get('teacher')
+        subject.department = Department.objects.filter(id=department_id).first() if department_id else None
+        subject.teacher = Teacher.objects.filter(id=teacher_id).first() if teacher_id else None
+        try:
+            subject.save()
+            messages.success(request, 'Subject updated successfully!')
+            return redirect('subject_list')
+        except Exception as e:
+            messages.error(request, f'Error updating subject: {str(e)}')
+    return render(request, 'subject/edit_subject.html', {'subject': subject, 'departments': departments, 'teachers': teachers})
+
+@login_required
+def delete_subject(request, slug):
+    if request.method == 'POST':
+        subject = get_object_or_404(Subject, slug=slug)
+        try:
+            subject.delete()
+            messages.success(request, 'Subject deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting subject: {str(e)}')
+    return redirect('subject_list')

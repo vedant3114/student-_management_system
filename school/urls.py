@@ -33,4 +33,10 @@ urlpatterns = [
     path('teachers/list/', views.teacher_list, name='teacher_list'),
     path('teachers/edit/<slug:slug>/', views.edit_teacher, name='edit_teacher'),
     path('teachers/delete/<slug:slug>/', views.delete_teacher, name='delete_teacher'),
+
+    # Subject URLs
+    path('subjects/', views.subject_list, name='subject_list'),
+    path('subjects/add/', views.add_subject, name='add_subject'),
+    path('subjects/edit/<slug:slug>/', views.edit_subject, name='edit_subject'),
+    path('subjects/delete/<slug:slug>/', views.delete_subject, name='delete_subject'),
 ]
